@@ -78,6 +78,7 @@ public class InfiniteTerrain : MonoBehaviour
 
         MeshFilter meshFilter;
         MeshRenderer meshRenderer;
+        MeshCollider meshCollider;
 
         MapData mapData;
         bool mapDataReceived = false;
@@ -99,6 +100,8 @@ public class InfiniteTerrain : MonoBehaviour
 
             meshFilter = meshObject.AddComponent<MeshFilter>();
             meshRenderer = meshObject.AddComponent<MeshRenderer>();
+            meshCollider = meshObject.AddComponent<MeshCollider>();
+
             meshRenderer.material = material;
             meshObject.transform.parent = parent;
             meshObject.transform.position = position3d;
@@ -124,7 +127,6 @@ public class InfiniteTerrain : MonoBehaviour
 
         public void OnMeshDataReceived(MeshData meshData)
         {
-            meshFilter.mesh = meshData.CreateMesh();
             UpdateTerrainChunk();
         }
 
@@ -155,6 +157,7 @@ public class InfiniteTerrain : MonoBehaviour
                         {
                             prevLodIndex = lodIndex;
                             meshFilter.mesh = lodMesh.mesh;
+                            meshCollider.sharedMesh = lodMesh.mesh;
                         }
                         else if (!lodMesh.hasRequested)
                         {
