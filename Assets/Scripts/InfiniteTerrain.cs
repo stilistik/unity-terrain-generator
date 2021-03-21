@@ -59,7 +59,7 @@ public class InfiniteTerrain : MonoBehaviour
 
                 if (terrainChunks.ContainsKey(viewedChunkCoord))
                 {
-                    terrainChunks[viewedChunkCoord].UpdateTerrainChunk();
+                    terrainChunks[viewedChunkCoord].UpdateSelf();
                 }
                 else
                 {
@@ -85,6 +85,7 @@ public class InfiniteTerrain : MonoBehaviour
 
         LODSetting[] detailLevels;
         LODMesh[] lodMeshes;
+        LODMesh colliderMesh;
 
         int prevLodIndex = -1;
 
@@ -111,7 +112,11 @@ public class InfiniteTerrain : MonoBehaviour
             lodMeshes = new LODMesh[detailLevels.Length];
             for (int i = 0; i < detailLevels.Length; i++)
             {
-                lodMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateTerrainChunk);
+                lodMeshes[i] = new LODMesh(detailLevels[i].lod, UpdateSelf);
+                if (detailLevels[i].useForCollider)
+                {
+                    colliderMesh = lodMeshes[i];
+                }
             }
 
             setVisible(false);
@@ -122,15 +127,15 @@ public class InfiniteTerrain : MonoBehaviour
             this.mapData = mapData;
             meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData.colorMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
             mapDataReceived = true;
-            UpdateTerrainChunk();
+            UpdateSelf();
         }
 
         public void OnMeshDataReceived(MeshData meshData)
         {
-            UpdateTerrainChunk();
+            UpdateSelf();
         }
 
-        public void UpdateTerrainChunk()
+        public void UpdateSelf()
         {
             if (mapDataReceived)
             {
@@ -157,12 +162,29 @@ public class InfiniteTerrain : MonoBehaviour
                         {
                             prevLodIndex = lodIndex;
                             meshFilter.mesh = lodMesh.mesh;
-                            meshCollider.sharedMesh = lodMesh.mesh;
                         }
                         else if (!lodMesh.hasRequested)
                         {
                             lodMesh.RequestMeshData(mapData);
                         }
+                    }
+
+                    if (lodIndex == 0)
+                    {
+                        meshCollider.enabled = true;
+                        // we are requesting the highest LOD mesh, we want to add a collider as well
+                        if (colliderMesh.hasReceived)
+                        {
+                            meshCollider.sharedMesh = colliderMesh.mesh;
+                        }
+                        else if (!colliderMesh.hasRequested)
+                        {
+                            colliderMesh.RequestMeshData(mapData);
+                        }
+                    }
+                    else
+                    {
+                        meshCollider.enabled = false;
                     }
 
                     terrainChunksVisibleLastUpdate.Add(this);
@@ -218,5 +240,6 @@ public class InfiniteTerrain : MonoBehaviour
     {
         public MapGenerator.LOD lod;
         public int distanceThreshold;
+        public bool useForCollider;
     }
 }
