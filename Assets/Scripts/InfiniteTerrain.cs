@@ -25,7 +25,7 @@ public class InfiniteTerrain : MonoBehaviour
     {
         mapGenerator = FindObjectOfType<MapGenerator>();
         chunkSize = MapGenerator.mapChunkSize - 1;
-        chunksVisibleInViewDistance = Mathf.RoundToInt(mapGenerator.maxViewDistance / chunkSize);
+        chunksVisibleInViewDistance = Mathf.RoundToInt(mapGenerator.terrainData.maxViewDistance / chunkSize);
         UpdateVisibleChunks();
     }
 
@@ -34,7 +34,7 @@ public class InfiniteTerrain : MonoBehaviour
         Vector2 position = new Vector2(viewer.position.x, viewer.position.z);
         if ((position - viewerPosition).sqrMagnitude > sqrChunkUpdateThreshold)
         {
-            viewerPosition = position;
+            viewerPosition = position * mapGenerator.terrainData.uniformScale;
             UpdateVisibleChunks();
 
         }
@@ -105,7 +105,8 @@ public class InfiniteTerrain : MonoBehaviour
 
             meshRenderer.material = material;
             meshObject.transform.parent = parent;
-            meshObject.transform.position = position3d;
+            meshObject.transform.position = position3d * mapGenerator.terrainData.uniformScale;
+            meshObject.transform.localScale = Vector3.one * mapGenerator.terrainData.uniformScale;
 
             mapGenerator.RequestMapData(position, OnMapDataReceived);
 
@@ -125,7 +126,6 @@ public class InfiniteTerrain : MonoBehaviour
         public void OnMapDataReceived(MapData mapData)
         {
             this.mapData = mapData;
-            meshRenderer.material.mainTexture = TextureGenerator.TextureFromColorMap(mapData.colorMap, MapGenerator.mapChunkSize, MapGenerator.mapChunkSize);
             mapDataReceived = true;
             UpdateSelf();
         }
@@ -140,7 +140,7 @@ public class InfiniteTerrain : MonoBehaviour
             if (mapDataReceived)
             {
                 float viewerDistanceFromNearestEdge = Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
-                bool isVisible = viewerDistanceFromNearestEdge <= mapGenerator.maxViewDistance;
+                bool isVisible = viewerDistanceFromNearestEdge <= mapGenerator.terrainData.maxViewDistance;
 
                 if (isVisible)
                 {
