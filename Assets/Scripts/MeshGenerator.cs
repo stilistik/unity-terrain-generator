@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class MeshGenerator
 {
+
+    public const int numSupportedChunkSizes = 9;
+    public static readonly int[] supportedChunkSizes = { 48, 72, 96, 120, 144, 168, 192, 216, 240 };
     public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve meshHeightCurve, MapGenerator.LOD lod)
     {
         AnimationCurve heightCurve = new AnimationCurve(meshHeightCurve.keys);
@@ -13,9 +16,9 @@ public class MeshGenerator
         int meshSize = borderedSize - 2 * meshIncrement;
         int meshSizeUnsimplified = borderedSize - 2;
 
-        MeshData meshData = new MeshData(meshSize);
-
         int verticesPerLine = (meshSize - 1) / meshIncrement + 1;
+        MeshData meshData = new MeshData(verticesPerLine);
+
 
         float topLeftX = (meshSizeUnsimplified - 1) / -2f;
         float topLeftZ = (meshSizeUnsimplified - 1) / 2f;

@@ -6,8 +6,19 @@ using System.Threading;
 public class MapGenerator : MonoBehaviour
 {
     public enum DrawMode { None, NoiseMap, Mesh };
-    public enum LOD { One = 1, Two = 2, Four = 4, Eight = 8, Sixteen = 16 }
-    public const int mapChunkSize = 239;
+    public enum LOD { One = 1, Two = 2, Four = 4, Six = 6, Eight = 8 }
+
+    [Range(0, MeshGenerator.numSupportedChunkSizes - 1)]
+    public int chunkSizeIndex;
+    public int mapChunkSize
+    {
+        get
+        {
+            return MeshGenerator.supportedChunkSizes[chunkSizeIndex] - 1;
+        }
+    }
+
+
 
     public NoiseData noiseData;
     public TerrainData terrainData;
