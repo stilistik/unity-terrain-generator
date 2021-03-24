@@ -31,7 +31,10 @@ public class TextureData : UpdatableData
         Texture2DArray textureArray = new Texture2DArray(textureSize, textureSize, textures.Length, textureFormat, true);
         for (int i = 0; i < textures.Length; i++)
         {
-            textureArray.SetPixels(textures[i].GetPixels(), i);
+            if (textures[i] != null)
+            {
+                textureArray.SetPixels(textures[i].GetPixels(), i);
+            }
         }
         textureArray.Apply();
         return textureArray;

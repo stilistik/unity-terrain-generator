@@ -14,7 +14,7 @@ public class MapGenerator : MonoBehaviour
     {
         get
         {
-            return MeshGenerator.supportedChunkSizes[chunkSizeIndex] - 1;
+            return MeshGenerator.supportedChunkSizes[chunkSizeIndex] + 1;
         }
     }
 

@@ -11,28 +11,23 @@ public class MeshGenerator
     {
         AnimationCurve heightCurve = new AnimationCurve(meshHeightCurve.keys);
 
-        int meshIncrement = (int)lod;
-        int borderedSize = heightMap.GetLength(0);
-        int meshSize = borderedSize - 2 * meshIncrement;
-        int meshSizeUnsimplified = borderedSize - 2;
-
-        int verticesPerLine = (meshSize - 1) / meshIncrement + 1;
+        int skipIncrement = (int)lod;
+        int verticesPerLine = heightMap.GetLength(0);
+        float meshWorldSize = verticesPerLine - 3;
         MeshData meshData = new MeshData(verticesPerLine);
 
+        Vector2 topLeft = new Vector2(-1, 1) * meshWorldSize / 2f;
 
-        float topLeftX = (meshSizeUnsimplified - 1) / -2f;
-        float topLeftZ = (meshSizeUnsimplified - 1) / 2f;
 
-        int[,] vertexIndicesMap = new int[borderedSize, borderedSize];
+        int[,] vertexIndicesMap = new int[verticesPerLine, verticesPerLine];
         int borderVertexIndex = -1;
         int meshVertexIndex = 0;
 
-        for (int y = 0; y < borderedSize; y += meshIncrement)
+        for (int y = 0; y < verticesPerLine; y++)
         {
-            for (int x = 0; x < borderedSize; x += meshIncrement)
+            for (int x = 0; x < verticesPerLine; x++)
             {
-                bool isBorderVertex = x == 0 || y == 0 || x == borderedSize - 1 || y == borderedSize - 1;
-
+                bool isBorderVertex = IsBorderVertex(x, y, verticesPerLine);
                 if (isBorderVertex)
                 {
                     vertexIndicesMap[x, y] = borderVertexIndex;
@@ -46,24 +41,37 @@ public class MeshGenerator
             }
         }
 
-        for (int y = 0; y < borderedSize; y += meshIncrement)
-        {
-            for (int x = 0; x < borderedSize; x += meshIncrement)
-            {
-                int vertexIndex = vertexIndicesMap[x, y];
-                Vector2 percent = new Vector2((x - meshIncrement) / (float)meshSize, (y - meshIncrement) / (float)meshSize);
-                float height = heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
-                Vector3 vertexPosition = new Vector3(topLeftX + percent.x * meshSizeUnsimplified, height, topLeftZ - percent.y * meshSizeUnsimplified);
-                meshData.AddVertex(vertexPosition, percent, vertexIndex);
 
-                if (x < borderedSize - 1 && y < borderedSize - 1)
+        for (int y = 0; y < verticesPerLine; y++)
+        {
+            for (int x = 0; x < verticesPerLine; x++)
+            {
+
+                bool isBorderVertex = IsBorderVertex(x, y, verticesPerLine);
+                bool isSkippedVertex = !isBorderVertex && ((x - 1) % skipIncrement != 0 || (y - 1) % skipIncrement != 0);
+                bool isCornerVertex = (x == 0 || x == verticesPerLine - 1) && (y == 0 || y == verticesPerLine - 1);
+
+                if (!isSkippedVertex)
                 {
-                    int a = vertexIndicesMap[x, y];
-                    int b = vertexIndicesMap[x + meshIncrement, y];
-                    int c = vertexIndicesMap[x, y + meshIncrement];
-                    int d = vertexIndicesMap[x + meshIncrement, y + meshIncrement];
-                    meshData.AddTriangle(d, a, b);
-                    meshData.AddTriangle(a, d, c);
+                    int vertexIndex = vertexIndicesMap[x, y];
+                    Vector2 percent = new Vector2(x - 1, y - 1) / meshWorldSize;
+                    float height = heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
+                    Vector3 vertexPosition = new Vector3(topLeft.x + percent.x * meshWorldSize, height, topLeft.y - percent.y * meshWorldSize);
+                    meshData.AddVertex(vertexPosition, percent, vertexIndex);
+
+                    bool shouldCreateTriangle = x < verticesPerLine - 2 && y < verticesPerLine - 2;
+
+                    if (shouldCreateTriangle)
+                    {
+                        int xIncrement = y == 0 ? 1 : skipIncrement;
+                        int yIncremment = x == 0 ? 1 : skipIncrement;
+                        int a = vertexIndicesMap[x, y];
+                        int b = vertexIndicesMap[x + xIncrement, y];
+                        int c = vertexIndicesMap[x, y + yIncremment];
+                        int d = vertexIndicesMap[x + xIncrement, y + yIncremment];
+                        meshData.AddTriangle(d, a, b);
+                        meshData.AddTriangle(a, d, c);
+                    }
                 }
             }
         }
@@ -72,7 +80,14 @@ public class MeshGenerator
 
         return meshData;
     }
+
+    private static bool IsBorderVertex(int x, int y, int verticesPerLine)
+    {
+        return x == 0 || x == verticesPerLine - 1 || y == 0 || y == verticesPerLine - 1;
+    }
 }
+
+
 
 public class MeshData
 {

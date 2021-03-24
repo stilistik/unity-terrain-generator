@@ -13,6 +13,7 @@ public class InfiniteTerrain : MonoBehaviour
     public LODSetting[] detailLevels;
     public int colliderLODIndex;
     public Material meshMaterial;
+    public GameObject prefabTree;
 
     static Vector2 viewerPosition;
     static Vector2 viewerPositionOld;
@@ -77,7 +78,7 @@ public class InfiniteTerrain : MonoBehaviour
                 }
                 else
                 {
-                    terrainChunks.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, detailLevels, colliderLODIndex, transform, meshMaterial));
+                    terrainChunks.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, chunkSize, detailLevels, colliderLODIndex, transform, meshMaterial, prefabTree));
                 }
             }
         }
@@ -86,6 +87,7 @@ public class InfiniteTerrain : MonoBehaviour
     public class TerrainChunk
     {
         Vector2 position;
+        int size;
 
         GameObject meshObject;
         Bounds bounds;
@@ -104,9 +106,15 @@ public class InfiniteTerrain : MonoBehaviour
 
         int prevLodIndex = -1;
 
-        public TerrainChunk(Vector2 coordinate, int size, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material)
+        GameObject prefabTree;
+
+        List<GameObject> entities = new List<GameObject>();
+
+        public TerrainChunk(Vector2 coordinate, int size, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, GameObject prefabTree)
         {
             this.colliderLODIndex = colliderLODIndex;
+            this.size = size;
+            this.prefabTree = prefabTree;
             position = coordinate * size;
             Vector3 position3d = new Vector3(position.x, 0, position.y);
             bounds = new Bounds(position, Vector2.one * size);
@@ -187,11 +195,44 @@ public class InfiniteTerrain : MonoBehaviour
                         }
                     }
 
+                    PlaceEntities();
+
                     terrainChunksVisibleLastUpdate.Add(this);
                 }
                 setVisible(isVisible);
             }
 
+        }
+
+        float GetHeightAtPosition(int x, int y)
+        {
+            return mapGenerator.terrainData.meshHeightCurve.Evaluate(mapData.noiseMap[x, y]) * mapGenerator.terrainData.meshHeightMultiplier;
+        }
+
+        void RemoveEntities()
+        {
+            foreach (GameObject entity in entities)
+            {
+                Destroy(entity);
+            }
+            entities.Clear();
+        }
+
+        void PlaceEntities()
+        {
+            for (int y = 0; y < size; y += 10)
+            {
+                for (int x = 0; x < size; x += 10)
+                {
+                    float heightMapValue = mapData.noiseMap[x, y];
+                    if (heightMapValue < 0.6 && heightMapValue > 0.2)
+                    {
+                        float height = mapGenerator.terrainData.meshHeightCurve.Evaluate(heightMapValue) * mapGenerator.terrainData.meshHeightMultiplier;
+                        GameObject tree = Instantiate(prefabTree, new Vector3(position.x + x - size / 2, height, position.y - y + size / 2), Quaternion.identity);
+                        entities.Add(tree);
+                    }
+                }
+            }
         }
 
         public void UpdateColliderMesh()
@@ -224,6 +265,10 @@ public class InfiniteTerrain : MonoBehaviour
 
         public void setVisible(bool visible)
         {
+            if (!visible)
+            {
+                RemoveEntities();
+            }
             meshObject.SetActive(visible);
         }
 
