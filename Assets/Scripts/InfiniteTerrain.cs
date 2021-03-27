@@ -77,7 +77,7 @@ public class InfiniteTerrain : MonoBehaviour
                 }
                 else
                 {
-                    terrainChunks.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, meshWorldSize, detailLevels, colliderLODIndex, transform, meshMaterial, prefabTree));
+                    terrainChunks.Add(viewedChunkCoord, new TerrainChunk(viewedChunkCoord, mapGenerator.heightMapSettings, mapGenerator.meshSettings, detailLevels, colliderLODIndex, transform, meshMaterial, prefabTree));
                 }
             }
         }
@@ -96,7 +96,7 @@ public class InfiniteTerrain : MonoBehaviour
         MeshCollider meshCollider;
 
         HeightMap heightMap;
-        bool mapDataReceived = false;
+        bool heightMapReceived = false;
 
         LODSetting[] detailLevels;
         LODMesh[] lodMeshes;
@@ -108,17 +108,20 @@ public class InfiniteTerrain : MonoBehaviour
         GameObject prefabTree;
 
         List<GameObject> entities = new List<GameObject>();
+        MeshSettings meshSettings;
+        HeightMapSettings heightMapSettings;
 
-        public TerrainChunk(Vector2 coordinate, float meshWorldSize, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, GameObject prefabTree)
+        public TerrainChunk(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, GameObject prefabTree)
         {
             this.colliderLODIndex = colliderLODIndex;
-            this.size = meshWorldSize;
+            this.meshSettings = meshSettings;
+            this.heightMapSettings = heightMapSettings;
             this.prefabTree = prefabTree;
-            sampleCenter = coordinate * meshWorldSize / mapGenerator.meshSettings.scale;
-            Vector2 position = coordinate * meshWorldSize;
-            bounds = new Bounds(position, Vector2.one * meshWorldSize);
-
             this.detailLevels = detailLevels;
+
+            sampleCenter = coordinate * meshSettings.meshWorldSize / mapGenerator.meshSettings.scale;
+            Vector2 position = coordinate * meshSettings.meshWorldSize;
+            bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
 
             meshObject = new GameObject("TerrainChunk");
 
@@ -130,7 +133,7 @@ public class InfiniteTerrain : MonoBehaviour
             meshObject.transform.parent = parent;
             meshObject.transform.position = new Vector3(position.x, 0, position.y);
 
-            mapGenerator.RequestHeightMap(sampleCenter, OnMapDataReceived);
+            ThreadedDataLoader.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, sampleCenter), OnHeightMapReceived);
 
             lodMeshes = new LODMesh[detailLevels.Length];
             for (int i = 0; i < detailLevels.Length; i++)
@@ -147,10 +150,10 @@ public class InfiniteTerrain : MonoBehaviour
             setVisible(false);
         }
 
-        public void OnMapDataReceived(HeightMap mapData)
+        public void OnHeightMapReceived(object heightMapObject)
         {
-            this.heightMap = mapData;
-            mapDataReceived = true;
+            this.heightMap = (HeightMap)heightMapObject;
+            heightMapReceived = true;
             UpdateSelf();
         }
 
@@ -161,7 +164,7 @@ public class InfiniteTerrain : MonoBehaviour
 
         public void UpdateSelf()
         {
-            if (mapDataReceived)
+            if (heightMapReceived)
             {
                 float viewerDistanceFromNearestEdge = Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
                 bool isVisible = viewerDistanceFromNearestEdge <= mapGenerator.meshSettings.maxViewDistance;
@@ -189,7 +192,7 @@ public class InfiniteTerrain : MonoBehaviour
                         }
                         else if (!lodMesh.hasRequested)
                         {
-                            lodMesh.RequestMeshData(heightMap);
+                            lodMesh.RequestMeshData(heightMap, meshSettings);
                         }
                     }
 
@@ -245,7 +248,7 @@ public class InfiniteTerrain : MonoBehaviour
                 {
                     if (!colliderMesh.hasRequested)
                     {
-                        colliderMesh.RequestMeshData(heightMap);
+                        colliderMesh.RequestMeshData(heightMap, meshSettings);
                     }
                 }
 
@@ -290,15 +293,15 @@ public class InfiniteTerrain : MonoBehaviour
             this.lod = lod;
         }
 
-        public void RequestMeshData(HeightMap mapData)
+        public void RequestMeshData(HeightMap heightMap, MeshSettings meshSettings)
         {
             hasRequested = true;
-            mapGenerator.RequestMeshData(mapData, lod, onMeshDataReceived);
+            ThreadedDataLoader.RequestData(() => MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, lod), OnMeshDataReceived);
         }
 
-        void onMeshDataReceived(MeshData meshData)
+        void OnMeshDataReceived(object meshDataObject)
         {
-            mesh = meshData.CreateMesh();
+            mesh = ((MeshData)meshDataObject).CreateMesh();
             hasReceived = true;
             updateCallback();
         }
