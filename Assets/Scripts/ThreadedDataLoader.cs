@@ -16,13 +16,17 @@ public class ThreadedDataLoader : MonoBehaviour
 
     void Update()
     {
-        if (mapDataQueue.Count > 0)
+        lock (mapDataQueue)
         {
-            while (mapDataQueue.Count > 0)
+            if (mapDataQueue.Count > 0)
             {
-                ThreadInfo threadInfo = mapDataQueue.Dequeue();
-                threadInfo.callback(threadInfo.parameter);
+                while (mapDataQueue.Count > 0)
+                {
+                    ThreadInfo threadInfo = mapDataQueue.Dequeue();
+                    threadInfo.callback(threadInfo.parameter);
+                }
             }
+
         }
     }
 

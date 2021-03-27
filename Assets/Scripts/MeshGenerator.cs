@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, MapGenerator.LOD lod)
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, LOD lod)
     {
         int skipIncrement = (int)lod;
         int verticesPerLine = meshSettings.numVertsPerLine;

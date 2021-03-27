@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Threading;
 
-public class MapGenerator : MonoBehaviour
+public class TerrainPreview : MonoBehaviour
 {
+    public Renderer textureRenderer;
+    public MeshFilter meshFilter;
+    public MeshRenderer meshRenderer;
     public enum DrawMode { None, NoiseMap, Mesh };
-    public enum LOD { One = 1, Two = 2, Four = 4, Six = 6, Eight = 8 }
-
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
     public TextureData textureData;
@@ -20,7 +20,26 @@ public class MapGenerator : MonoBehaviour
 
     private HeightMap heightMap;
 
+    public void DrawTexture(Texture2D texture)
+    {
+        meshRenderer.gameObject.SetActive(false);
+        textureRenderer.gameObject.SetActive(true);
+        textureRenderer.sharedMaterial.mainTexture = texture;
+        textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height) / 10f;
+    }
 
+    public void DrawMesh(MeshData meshData)
+    {
+        meshRenderer.gameObject.SetActive(true);
+        textureRenderer.gameObject.SetActive(false);
+        meshFilter.sharedMesh = meshData.CreateMesh();
+    }
+
+    public void Clear()
+    {
+        meshRenderer.gameObject.SetActive(false);
+        textureRenderer.gameObject.SetActive(false);
+    }
 
     void Start()
     {
@@ -30,17 +49,20 @@ public class MapGenerator : MonoBehaviour
 
     public void DrawMapInEditor()
     {
-        MapDisplay display = FindObjectOfType<MapDisplay>();
         textureData.UpdateMeshHeights(terrainMaterial, heightMapSettings.minHeight, heightMapSettings.maxHeight);
         HeightMap heightMap = HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, new Vector2(0, 0));
 
         if (drawMode == DrawMode.NoiseMap)
         {
-            display.DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap.values));
+            DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap));
         }
         else if (drawMode == DrawMode.Mesh)
         {
-            display.DrawMesh(MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, editorPreviewLod));
+            DrawMesh(MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, editorPreviewLod));
+        }
+        else
+        {
+            Clear();
         }
     }
 
