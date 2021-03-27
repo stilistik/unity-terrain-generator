@@ -4,16 +4,11 @@ using UnityEngine;
 
 public class MeshGenerator
 {
-
-    public const int numSupportedChunkSizes = 9;
-    public static readonly int[] supportedChunkSizes = { 48, 72, 96, 120, 144, 168, 192, 216, 240 };
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, float heightMultiplier, AnimationCurve meshHeightCurve, MapGenerator.LOD lod)
+    public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, MapGenerator.LOD lod)
     {
-        AnimationCurve heightCurve = new AnimationCurve(meshHeightCurve.keys);
-
         int skipIncrement = (int)lod;
-        int verticesPerLine = heightMap.GetLength(0);
-        float meshWorldSize = verticesPerLine - 3;
+        int verticesPerLine = meshSettings.numVertsPerLine;
+        float meshWorldSize = meshSettings.meshWorldSize;
         MeshData meshData = new MeshData(verticesPerLine);
 
         Vector2 topLeft = new Vector2(-1, 1) * meshWorldSize / 2f;
@@ -49,14 +44,12 @@ public class MeshGenerator
 
                 bool isBorderVertex = IsBorderVertex(x, y, verticesPerLine);
                 bool isSkippedVertex = !isBorderVertex && ((x - 1) % skipIncrement != 0 || (y - 1) % skipIncrement != 0);
-                bool isCornerVertex = (x == 0 || x == verticesPerLine - 1) && (y == 0 || y == verticesPerLine - 1);
 
                 if (!isSkippedVertex)
                 {
                     int vertexIndex = vertexIndicesMap[x, y];
                     Vector2 percent = new Vector2(x - 1, y - 1) / meshWorldSize;
-                    float height = heightCurve.Evaluate(heightMap[x, y]) * heightMultiplier;
-                    Vector3 vertexPosition = new Vector3(topLeft.x + percent.x * meshWorldSize, height, topLeft.y - percent.y * meshWorldSize);
+                    Vector3 vertexPosition = new Vector3((topLeft.x + percent.x * meshWorldSize) * meshSettings.scale, heightMap[x, y], (topLeft.y - percent.y * meshWorldSize) * meshSettings.scale);
                     meshData.AddVertex(vertexPosition, percent, vertexIndex);
 
                     bool shouldCreateTriangle = x < verticesPerLine - 2 && y < verticesPerLine - 2;
