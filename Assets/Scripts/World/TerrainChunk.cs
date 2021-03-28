@@ -6,11 +6,12 @@ public static class TerrainChunkFactory
 {
     public static TerrainChunk Create(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
     {
-        GameObject gameObject = new GameObject("TerrainChunk");
-        gameObject.AddComponent<MeshFilter>();
-        gameObject.AddComponent<MeshRenderer>();
-        gameObject.AddComponent<MeshCollider>();
-        TerrainChunk chunk = gameObject.AddComponent<TerrainChunk>();
+        GameObject chunkObject = new GameObject("TerrainChunk");
+        chunkObject.AddComponent<MeshFilter>();
+        chunkObject.AddComponent<MeshRenderer>();
+        chunkObject.AddComponent<MeshCollider>();
+
+        TerrainChunk chunk = chunkObject.AddComponent<TerrainChunk>();
         chunk.SetUp(coordinate, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, parent, material, viewer);
         return chunk;
     }
