@@ -7,18 +7,31 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TerrainMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 98bf4f9ba875b364ba670efef06b66fc, type: 3}
-  m_ShaderKeywords: 
+  m_Name: WaterMaterial
+  m_Shader: {fileID: 4800000, guid: 650dd9526735d5b46b79224bc6e94025, type: 3}
+  m_ShaderKeywords: _ALPHATEST_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
+  m_CustomRenderQueue: 2450
+  stringTagMap:
+    RenderType: TransparentCutout
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - Texture2D_19B6F7E7:
+        m_Texture: {fileID: 2800000, guid: a3d70aec690974b44907a11824ab3ae4, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Texture2D_F61624DA:
+        m_Texture: {fileID: 2800000, guid: a00518a28e5c26449a893fb7c8627991, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BaseMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -55,8 +68,8 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - testTexture:
-        m_Texture: {fileID: 2800000, guid: c8fa9b924b64fb647bf6e406e3b6223f, type: 3}
+    - _SpecGlossMap:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -72,31 +85,58 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - Vector1_0c0b77a18ad14bd286ca4bfb608c3965: 6.71
-    - Vector1_851b9b6336954cf780a7b6f3b1890484: 2.72
-    - Vector1_dbd9588228a642ea820512f5b6ceed09: 4.18
+    - Vector1_1C8FEA19: 1.04
+    - Vector1_50C74F87: 0.73
+    - Vector1_5DE38BA8: 0.246
+    - Vector1_712C90A3: 1.73
+    - Vector1_C8CD7BB7: 0.2
+    - Vector1_EBF894A3: 0
+    - Vector1_F8D9205E: 0.38
+    - _AlphaClip: 1
+    - _Blend: 0
     - _BumpScale: 1
-    - _Cutoff: 0.5
+    - _ClearCoatMask: 0
+    - _ClearCoatSmoothness: 0
+    - _Cull: 2
+    - _Cutoff: 0.244
+    - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _GlossMapScale: 1
+    - _EnvironmentReflections: 1
+    - _GlossMapScale: 0
     - _Glossiness: 0
-    - _GlossyReflections: 1
+    - _GlossyReflections: 0
     - _Metallic: 0
-    - _Mode: 0
     - _OcclusionStrength: 1
-    - _Parallax: 0.02
+    - _Parallax: 0.005
+    - _QueueOffset: 0
+    - _ReceiveShadows: 1
+    - _SampleGI: 0
+    - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _UVSec: 0
+    - _Surface: 0
+    - _WorkflowMode: 1
     - _ZWrite: 1
-    - testScale: 10
     m_Colors:
-    - Color_1730c5f3b0f5488da0111c46f43c706e: {r: 0.6037736, g: 0.4505104, b: 0.3047348, a: 0}
-    - Color_1b20e0c487f0411a82dbe2c1e20f332b: {r: 0.8962264, g: 0.6552383, b: 0.4523407, a: 0}
-    - Color_889a71d34c624366984f76a0267dc5ef: {r: 0.8113208, g: 0, b: 0.4056604, a: 0}
-    - Color_b5f3f7510b94487e81028d56e8347c8d: {r: 0.008009953, g: 0.5660378, b: 0.31785566, a: 0}
+    - Color_31F2026D: {r: 0, g: 0, b: 0, a: 0.05490196}
+    - Color_C8989E96: {r: 0.42497328, g: 0.43120328, b: 0.4716981, a: 0.11372549}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _SpecColor: {r: 0.2, g: 0.2, b: 0.2, a: 1}
   m_BuildTextureStacks: []
+--- !u!114 &6059818937150668770
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 4
