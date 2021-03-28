@@ -4,10 +4,8 @@ using UnityEngine;
 
 public class TerrainPreview : MonoBehaviour
 {
-    public Renderer textureRenderer;
-    public MeshFilter meshFilter;
-    public MeshRenderer meshRenderer;
-    public enum DrawMode { None, NoiseMap, Mesh };
+
+    public enum DrawMode { None, NoiseMap, Chunk };
     public HeightMapSettings heightMapSettings;
     public MeshSettings meshSettings;
     public TextureData textureData;
@@ -17,27 +15,35 @@ public class TerrainPreview : MonoBehaviour
     public DrawMode drawMode;
     public LOD editorPreviewLod;
     public bool autoUpdate;
+    public Renderer textureRenderer;
 
-    private HeightMap heightMap;
+    static TerrainChunk chunk;
 
     public void DrawTexture(Texture2D texture)
     {
-        meshRenderer.gameObject.SetActive(false);
+        DestroyImmediate(chunk.gameObject);
         textureRenderer.gameObject.SetActive(true);
         textureRenderer.sharedMaterial.mainTexture = texture;
         textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height) / 10f;
     }
 
-    public void DrawMesh(MeshData meshData)
+    public void DrawChunk()
     {
-        meshRenderer.gameObject.SetActive(true);
+        var chunks = FindObjectsOfType<TerrainChunk>();
+        foreach (TerrainChunk chunk in chunks)
+        {
+            DestroyImmediate(chunk.gameObject);
+        }
         textureRenderer.gameObject.SetActive(false);
-        meshFilter.sharedMesh = meshData.CreateMesh();
+
+        LODSetting[] lodSettings = { new LODSetting(editorPreviewLod, int.MaxValue) };
+        chunk = TerrainChunkFactory.Create(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, transform);
+        chunk.Load();
     }
 
     public void Clear()
     {
-        meshRenderer.gameObject.SetActive(false);
+        DestroyImmediate(chunk.gameObject);
         textureRenderer.gameObject.SetActive(false);
     }
 
@@ -56,9 +62,9 @@ public class TerrainPreview : MonoBehaviour
         {
             DrawTexture(TextureGenerator.TextureFromHeightMap(heightMap));
         }
-        else if (drawMode == DrawMode.Mesh)
+        else if (drawMode == DrawMode.Chunk)
         {
-            DrawMesh(MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, editorPreviewLod));
+            DrawChunk();
         }
         else
         {
@@ -79,22 +85,8 @@ public class TerrainPreview : MonoBehaviour
         textureData.ApplyToMaterial(terrainMaterial);
     }
 
-
-
     void OnValidate()
     {
-        if (meshSettings != null)
-        {
-            // unsubscribe if already subscribed before resubscribing
-            meshSettings.OnValuesUpdated -= OnValuesUpdated;
-            meshSettings.OnValuesUpdated += OnValuesUpdated;
-        }
-        if (heightMapSettings != null)
-        {
-            // unsubscribe if already subscribed before resubscribing
-            heightMapSettings.OnValuesUpdated -= OnValuesUpdated;
-            heightMapSettings.OnValuesUpdated += OnValuesUpdated;
-        }
         if (textureData != null)
         {
             textureData.OnValuesUpdated -= OnTextureValuesUpdated;

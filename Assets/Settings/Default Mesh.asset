@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Default Mesh
   m_EditorClassIdentifier: 
   autoUpdate: 1
-  chunkSizeIndex: 0
+  chunkSizeIndex: 1
   scale: 1
   maxViewDistance: 200

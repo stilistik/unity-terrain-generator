@@ -2,7 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainChunk
+public static class TerrainChunkFactory
+{
+    public static TerrainChunk Create(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
+    {
+        GameObject gameObject = new GameObject("TerrainChunk");
+        gameObject.AddComponent<MeshFilter>();
+        gameObject.AddComponent<MeshRenderer>();
+        gameObject.AddComponent<MeshCollider>();
+        TerrainChunk chunk = gameObject.AddComponent<TerrainChunk>();
+        chunk.SetUp(coordinate, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, parent, material, viewer);
+        return chunk;
+    }
+}
+
+public class TerrainChunk : MonoBehaviour
 {
     public event System.Action<TerrainChunk, bool> OnVisibleChanged;
     const int colliderUpdateThreshold = 5;
@@ -11,7 +25,6 @@ public class TerrainChunk
     Vector2 sampleCenter;
     float size;
 
-    GameObject meshObject;
     Bounds bounds;
 
     MeshFilter meshFilter;
@@ -42,9 +55,7 @@ public class TerrainChunk
         }
     }
 
-
-
-    public TerrainChunk(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
+    public void SetUp(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
     {
         this.colliderLODIndex = colliderLODIndex;
         this.meshSettings = meshSettings;
@@ -56,22 +67,19 @@ public class TerrainChunk
         Vector2 position = coordinate * meshSettings.meshWorldSize;
         bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
 
-        meshObject = new GameObject("TerrainChunk");
-
-        meshFilter = meshObject.AddComponent<MeshFilter>();
-        meshRenderer = meshObject.AddComponent<MeshRenderer>();
-        meshCollider = meshObject.AddComponent<MeshCollider>();
+        meshRenderer = GetComponent<MeshRenderer>();
+        meshFilter = GetComponent<MeshFilter>();
+        meshCollider = GetComponent<MeshCollider>();
 
         meshRenderer.material = material;
-        meshObject.transform.parent = parent;
-        meshObject.transform.position = new Vector3(position.x, 0, position.y);
+        gameObject.transform.parent = parent;
+        gameObject.transform.position = new Vector3(position.x, 0, position.y);
 
         setVisible(false);
     }
 
     public void Load()
     {
-        ThreadedDataLoader.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, sampleCenter), OnHeightMapReceived);
         lodMeshes = new LODMesh[detailLevels.Length];
         for (int i = 0; i < detailLevels.Length; i++)
         {
@@ -83,6 +91,8 @@ public class TerrainChunk
                 lodMesh.updateCallback += UpdateColliderMesh;
             }
         }
+
+        ThreadedDataLoader.RequestData(() => HeightMapGenerator.GenerateHeightMap(meshSettings.numVertsPerLine, meshSettings.numVertsPerLine, heightMapSettings, sampleCenter), OnHeightMapReceived);
     }
 
     public void OnHeightMapReceived(object heightMapObject)
@@ -179,13 +189,25 @@ public class TerrainChunk
 
     public void setVisible(bool visible)
     {
-        meshObject.SetActive(visible);
+        gameObject.SetActive(visible);
         wasVisible = visible;
     }
 
     public bool isVisible()
     {
-        return meshObject.activeSelf;
+        return gameObject.activeSelf;
+    }
+
+    public void Destroy()
+    {
+        if (Application.isEditor)
+        {
+            UnityEngine.Object.DestroyImmediate(gameObject);
+        }
+        else
+        {
+            UnityEngine.Object.Destroy(gameObject);
+        }
     }
 }
 

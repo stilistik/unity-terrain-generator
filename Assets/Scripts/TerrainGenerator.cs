@@ -13,7 +13,7 @@ public class TerrainGenerator : MonoBehaviour
     public Transform viewer;
     public LODSetting[] detailLevels;
     public int colliderLODIndex;
-    public Material meshMaterial;
+    public Material terrainMaterial;
 
     static Vector2 viewerPosition;
     static Vector2 viewerPositionOld;
@@ -73,7 +73,7 @@ public class TerrainGenerator : MonoBehaviour
                 }
                 else
                 {
-                    TerrainChunk chunk = new TerrainChunk(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, meshMaterial, viewer);
+                    TerrainChunk chunk = TerrainChunkFactory.Create(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, terrainMaterial, viewer);
                     terrainChunks.Add(viewedChunkCoord, chunk);
                     chunk.OnVisibleChanged += OnChunkVisibilityChanged;
                     chunk.Load();
@@ -100,6 +100,12 @@ public struct LODSetting
 {
     public LOD lod;
     public int distanceThreshold;
+
+    public LODSetting(LOD lod, int distanceThreshold)
+    {
+        this.lod = lod;
+        this.distanceThreshold = distanceThreshold;
+    }
 
     public int sqrDistanceTreshold
     {

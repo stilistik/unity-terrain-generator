@@ -9,7 +9,7 @@ public class ThreadedDataLoader : MonoBehaviour
     static ThreadedDataLoader instance;
     Queue<ThreadInfo> mapDataQueue = new Queue<ThreadInfo>();
 
-    void Awake()
+    void Start()
     {
         instance = FindObjectOfType<ThreadedDataLoader>();
     }
@@ -32,12 +32,21 @@ public class ThreadedDataLoader : MonoBehaviour
 
     public static void RequestData(Func<object> generateData, System.Action<object> callback)
     {
-        ThreadStart threadStart = delegate
+        if (Application.isPlaying)
         {
-            instance.DataThread(generateData, callback);
-        };
+            // do the work on a separate thread if application is running
+            ThreadStart threadStart = delegate
+            {
+                instance.DataThread(generateData, callback);
+            };
 
-        new Thread(threadStart).Start();
+            new Thread(threadStart).Start();
+        }
+        else
+        {
+            // do the work on the main thread for editor
+            callback(generateData());
+        }
     }
 
     void DataThread(Func<object> generateData, System.Action<object> callback)
