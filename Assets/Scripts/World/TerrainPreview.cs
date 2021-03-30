@@ -17,7 +17,7 @@ public class TerrainPreview : MonoBehaviour
     public bool autoUpdate;
     public Renderer textureRenderer;
 
-    static TerrainChunk chunk;
+    static WorldChunk chunk;
 
     public void DrawTexture(Texture2D texture)
     {
@@ -29,15 +29,15 @@ public class TerrainPreview : MonoBehaviour
 
     public void DrawChunk()
     {
-        var chunks = FindObjectsOfType<TerrainChunk>();
-        foreach (TerrainChunk chunk in chunks)
+        var chunks = GameObject.FindGameObjectsWithTag("WorldChunk");
+        foreach (GameObject chunk in chunks)
         {
-            DestroyImmediate(chunk.gameObject);
+            DestroyImmediate(chunk);
         }
         textureRenderer.gameObject.SetActive(false);
 
         LODSetting[] lodSettings = { new LODSetting(editorPreviewLod, int.MaxValue) };
-        chunk = TerrainChunkFactory.Create(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, transform);
+        chunk = new WorldChunk(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, transform);
         chunk.Load();
     }
 

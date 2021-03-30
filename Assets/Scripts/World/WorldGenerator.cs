@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainGenerator : MonoBehaviour
+public class WorldGenerator : MonoBehaviour
 {
     const int chunkUpdateThreshold = 25;
     const int sqrChunkUpdateThreshold = chunkUpdateThreshold * chunkUpdateThreshold;
@@ -20,9 +20,8 @@ public class TerrainGenerator : MonoBehaviour
 
     int chunksVisibleInViewDistance;
 
-
-    Dictionary<Vector2, TerrainChunk> terrainChunks = new Dictionary<Vector2, TerrainChunk>();
-    static List<TerrainChunk> terrainChunksVisibleLastUpdate = new List<TerrainChunk>();
+    Dictionary<Vector2, WorldChunk> chunks = new Dictionary<Vector2, WorldChunk>();
+    static List<WorldChunk> chunksVisibleLastUpdate = new List<WorldChunk>();
 
 
     void Start()
@@ -36,9 +35,9 @@ public class TerrainGenerator : MonoBehaviour
         viewerPosition = new Vector2(viewer.position.x, viewer.position.z);
         if (viewerPosition != viewerPositionOld)
         {
-            foreach (TerrainChunk chunk in terrainChunksVisibleLastUpdate)
+            foreach (WorldChunk chunk in chunksVisibleLastUpdate)
             {
-                chunk.UpdateColliderMesh();
+                chunk.UpdateCollider();
             }
         }
 
@@ -55,10 +54,10 @@ public class TerrainGenerator : MonoBehaviour
         int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / meshSettings.meshWorldSize);
         int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / meshSettings.meshWorldSize);
 
-        for (int i = terrainChunksVisibleLastUpdate.Count - 1; i >= 0; i--)
+        for (int i = chunksVisibleLastUpdate.Count - 1; i >= 0; i--)
         {
-            terrainChunksVisibleLastUpdate[i].setVisible(false);
-            terrainChunksVisibleLastUpdate.RemoveAt(i);
+            chunksVisibleLastUpdate[i].SetVisible(false);
+            chunksVisibleLastUpdate.RemoveAt(i);
         }
 
         for (int yOffset = -chunksVisibleInViewDistance; yOffset <= chunksVisibleInViewDistance; yOffset++)
@@ -67,14 +66,14 @@ public class TerrainGenerator : MonoBehaviour
             {
                 Vector2 viewedChunkCoord = new Vector2(currentChunkCoordX + xOffset, currentChunkCoordY + yOffset);
 
-                if (terrainChunks.ContainsKey(viewedChunkCoord))
+                if (chunks.ContainsKey(viewedChunkCoord))
                 {
-                    terrainChunks[viewedChunkCoord].UpdateSelf();
+                    chunks[viewedChunkCoord].Update();
                 }
                 else
                 {
-                    TerrainChunk chunk = TerrainChunkFactory.Create(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, terrainMaterial, viewer);
-                    terrainChunks.Add(viewedChunkCoord, chunk);
+                    WorldChunk chunk = new WorldChunk(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, terrainMaterial, viewer);
+                    chunks.Add(viewedChunkCoord, chunk);
                     chunk.OnVisibleChanged += OnChunkVisibilityChanged;
                     chunk.Load();
                 }
@@ -82,15 +81,15 @@ public class TerrainGenerator : MonoBehaviour
         }
     }
 
-    void OnChunkVisibilityChanged(TerrainChunk chunk, bool visible)
+    void OnChunkVisibilityChanged(WorldChunk chunk, bool visible)
     {
         if (visible)
         {
-            terrainChunksVisibleLastUpdate.Add(chunk);
+            chunksVisibleLastUpdate.Add(chunk);
         }
         else
         {
-            terrainChunksVisibleLastUpdate.Remove(chunk);
+            chunksVisibleLastUpdate.Remove(chunk);
         }
     }
 }

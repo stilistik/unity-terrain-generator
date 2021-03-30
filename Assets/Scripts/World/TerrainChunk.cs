@@ -2,22 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class TerrainChunkFactory
-{
-    public static TerrainChunk Create(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
-    {
-        GameObject chunkObject = new GameObject("TerrainChunk");
-        chunkObject.AddComponent<MeshFilter>();
-        chunkObject.AddComponent<MeshRenderer>();
-        chunkObject.AddComponent<MeshCollider>();
-
-        TerrainChunk chunk = chunkObject.AddComponent<TerrainChunk>();
-        chunk.SetUp(coordinate, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, parent, material, viewer);
-        return chunk;
-    }
-}
-
-public class TerrainChunk : MonoBehaviour
+public class TerrainChunk
 {
     public event System.Action<TerrainChunk, bool> OnVisibleChanged;
     const int colliderUpdateThreshold = 5;
@@ -28,6 +13,7 @@ public class TerrainChunk : MonoBehaviour
 
     Bounds bounds;
 
+    GameObject gameObject;
     MeshFilter meshFilter;
     MeshRenderer meshRenderer;
     MeshCollider meshCollider;
@@ -56,7 +42,7 @@ public class TerrainChunk : MonoBehaviour
         }
     }
 
-    public void SetUp(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
+    public TerrainChunk(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer)
     {
         this.colliderLODIndex = colliderLODIndex;
         this.meshSettings = meshSettings;
@@ -68,9 +54,10 @@ public class TerrainChunk : MonoBehaviour
         Vector2 position = coordinate * meshSettings.meshWorldSize;
         bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
 
-        meshRenderer = GetComponent<MeshRenderer>();
-        meshFilter = GetComponent<MeshFilter>();
-        meshCollider = GetComponent<MeshCollider>();
+        gameObject = new GameObject("TerrainChunk");
+        meshRenderer = gameObject.AddComponent<MeshRenderer>();
+        meshFilter = gameObject.AddComponent<MeshFilter>();
+        meshCollider = gameObject.AddComponent<MeshCollider>();
 
         meshRenderer.material = material;
         gameObject.transform.parent = parent;
@@ -85,7 +72,7 @@ public class TerrainChunk : MonoBehaviour
         for (int i = 0; i < detailLevels.Length; i++)
         {
             LODMesh lodMesh = new LODMesh(detailLevels[i].lod);
-            lodMesh.updateCallback += UpdateSelf;
+            lodMesh.updateCallback += Update;
             lodMeshes[i] = lodMesh;
             if (i == colliderLODIndex)
             {
@@ -100,15 +87,15 @@ public class TerrainChunk : MonoBehaviour
     {
         this.heightMap = (HeightMap)heightMapObject;
         heightMapReceived = true;
-        UpdateSelf();
+        Update();
     }
 
     public void OnMeshDataReceived(MeshData meshData)
     {
-        UpdateSelf();
+        Update();
     }
 
-    public void UpdateSelf()
+    public void Update()
     {
         if (heightMapReceived)
         {
@@ -192,23 +179,6 @@ public class TerrainChunk : MonoBehaviour
     {
         gameObject.SetActive(visible);
         wasVisible = visible;
-    }
-
-    public bool isVisible()
-    {
-        return gameObject.activeSelf;
-    }
-
-    public void Destroy()
-    {
-        if (Application.isEditor)
-        {
-            UnityEngine.Object.DestroyImmediate(gameObject);
-        }
-        else
-        {
-            UnityEngine.Object.Destroy(gameObject);
-        }
     }
 }
 
