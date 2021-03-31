@@ -35,3 +35,6 @@ public class ScriptableObjectDrawer : PropertyDrawer
         }
     }
 }
+
+[CustomEditor(typeof(MonoBehaviour), true)]
+public class WhateverEditor : Editor { }

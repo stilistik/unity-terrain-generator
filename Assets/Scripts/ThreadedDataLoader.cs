@@ -9,9 +9,9 @@ public class ThreadedDataLoader : MonoBehaviour
     static ThreadedDataLoader instance;
     Queue<ThreadInfo> mapDataQueue = new Queue<ThreadInfo>();
 
-    void Start()
+    void Awake()
     {
-        instance = FindObjectOfType<ThreadedDataLoader>();
+        ThreadedDataLoader.instance = this;
     }
 
     void Update()
@@ -32,7 +32,7 @@ public class ThreadedDataLoader : MonoBehaviour
 
     public static void RequestData(Func<object> generateData, System.Action<object> callback)
     {
-        if (Application.isPlaying)
+        if (instance != null)
         {
             // do the work on a separate thread if application is running
             ThreadStart threadStart = delegate

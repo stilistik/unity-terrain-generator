@@ -6,36 +6,89 @@ public class WorldChunk
 {
     public event System.Action<WorldChunk, bool> OnVisibleChanged;
     public GameObject gameObject;
-    TerrainChunk terrainChunk;
-    LODSetting[] detailLevels;
+    public Vector2 coordinate;
+    public Vector2 position;
+    public TerrainChunk terrainChunk;
+    public LODSetting[] detailLevels;
+    public MeshSettings meshSettings;
+    public HeightMapSettings heightMapSettings;
+    public Bounds bounds;
+    Transform viewer;
+    bool wasVisible = false;
+
 
     public WorldChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material terrainMaterial, Transform viewer)
     {
+        this.coordinate = coord;
+        this.meshSettings = meshSettings;
+        this.heightMapSettings = heightMapSettings;
+        this.viewer = viewer;
+        this.detailLevels = detailLevels;
+
+        position = coord * meshSettings.meshWorldSize;
+        bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
+
         gameObject = new GameObject("WorldChunk");
         gameObject.tag = "WorldChunk";
         gameObject.transform.parent = parent;
+        gameObject.transform.position = new Vector3(position.x, 0, position.y);
 
-        terrainChunk = new TerrainChunk(coord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, gameObject.transform, terrainMaterial, viewer);
-        terrainChunk.OnVisibleChanged += HandleTerrainChunkVisibleChanged;
-    }
+        terrainChunk = new TerrainChunk(this, terrainMaterial, colliderLODIndex);
 
-    private void HandleTerrainChunkVisibleChanged(TerrainChunk chunk, bool visible)
-    {
-        if (OnVisibleChanged != null)
-        {
-            OnVisibleChanged(this, visible);
-        }
-        SetVisible(visible);
+        SetVisible(false);
     }
 
     public void Load()
     {
         terrainChunk.Load();
+        Update();
     }
 
     public void Update()
     {
-        terrainChunk.Update();
+        float viewerDistance = GetViewerDistanceFromEdge();
+        bool isVisible = viewerDistance <= meshSettings.maxViewDistance;
+        if (isVisible)
+        {
+            terrainChunk.Update();
+        }
+
+        if (isVisible != wasVisible)
+        {
+            SetVisible(isVisible);
+            if (OnVisibleChanged != null)
+            {
+                OnVisibleChanged(this, isVisible);
+            }
+        }
+    }
+
+    public Vector2 viewerPosition
+    {
+        get
+        {
+            return new Vector2(viewer.position.x, viewer.position.z);
+        }
+    }
+
+    public float GetViewerDistanceFromEdge()
+    {
+        return Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
+    }
+
+    public int GetLODIndex()
+    {
+        float viewerDistance = GetViewerDistanceFromEdge();
+        int lodIndex = detailLevels.Length - 1;
+        for (int i = 0; i < detailLevels.Length; i++)
+        {
+            if (viewerDistance <= detailLevels[i].distanceThreshold)
+            {
+                lodIndex = i;
+                break;
+            }
+        }
+        return lodIndex;
     }
 
     public void UpdateCollider()
@@ -45,6 +98,7 @@ public class WorldChunk
 
     public void SetVisible(bool visible)
     {
-        terrainChunk.setVisible(visible);
+        gameObject.SetActive(visible);
+        wasVisible = visible;
     }
 }
