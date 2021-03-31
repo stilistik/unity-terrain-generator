@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class MeshGenerator
 {
-    public static MeshData GenerateTerrainMesh(float[,] heightMap, MeshSettings meshSettings, LOD lod)
+    public static MeshData GenerateFlatMesh(MeshSettings meshSettings, LOD lod)
+    {
+        return GenerateMesh(null, meshSettings, lod);
+    }
+
+    public static MeshData GenerateMesh(float[,] heightMap, MeshSettings meshSettings, LOD lod)
     {
         int skipIncrement = (int)lod;
         int verticesPerLine = meshSettings.numVertsPerLine;
@@ -49,7 +54,8 @@ public class MeshGenerator
                 {
                     int vertexIndex = vertexIndicesMap[x, y];
                     Vector2 percent = new Vector2(x - 1, y - 1) / meshWorldSize;
-                    Vector3 vertexPosition = new Vector3((topLeft.x + percent.x * meshWorldSize) * meshSettings.scale, heightMap[x, y], (topLeft.y - percent.y * meshWorldSize) * meshSettings.scale);
+                    float height = heightMap != null ? heightMap[x, y] : 0f;
+                    Vector3 vertexPosition = new Vector3((topLeft.x + percent.x * meshWorldSize) * meshSettings.scale, height, (topLeft.y - percent.y * meshWorldSize) * meshSettings.scale);
                     meshData.AddVertex(vertexPosition, percent, vertexIndex);
 
                     bool shouldCreateTriangle = x < verticesPerLine - 2 && y < verticesPerLine - 2;

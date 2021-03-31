@@ -10,6 +10,8 @@ public class TerrainPreview : MonoBehaviour
     public MeshSettings meshSettings;
     public TextureData textureData;
     public Material terrainMaterial;
+    public Material waterMaterial;
+
 
     [Header("Debug Settings")]
     public DrawMode drawMode;
@@ -37,7 +39,7 @@ public class TerrainPreview : MonoBehaviour
         textureRenderer.gameObject.SetActive(false);
 
         LODSetting[] lodSettings = { new LODSetting(editorPreviewLod, int.MaxValue) };
-        chunk = new WorldChunk(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, transform);
+        chunk = new WorldChunk(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, waterMaterial, transform);
         chunk.Load();
     }
 

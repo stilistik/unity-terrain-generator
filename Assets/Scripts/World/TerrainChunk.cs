@@ -144,7 +144,7 @@ public class LODMesh
     public void RequestMeshData(HeightMap heightMap, MeshSettings meshSettings)
     {
         hasRequested = true;
-        ThreadedDataLoader.RequestData(() => MeshGenerator.GenerateTerrainMesh(heightMap.values, meshSettings, lod), OnMeshDataReceived);
+        ThreadedDataLoader.RequestData(() => MeshGenerator.GenerateMesh(heightMap.values, meshSettings, lod), OnMeshDataReceived);
     }
 
     void OnMeshDataReceived(object meshDataObject)

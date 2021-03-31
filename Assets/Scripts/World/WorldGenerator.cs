@@ -14,6 +14,7 @@ public class WorldGenerator : MonoBehaviour
     public LODSetting[] detailLevels;
     public int colliderLODIndex;
     public Material terrainMaterial;
+    public Material waterMaterial;
 
     static Vector2 viewerPosition;
     static Vector2 viewerPositionOld;
@@ -72,7 +73,7 @@ public class WorldGenerator : MonoBehaviour
                 }
                 else
                 {
-                    WorldChunk chunk = new WorldChunk(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, terrainMaterial, viewer);
+                    WorldChunk chunk = new WorldChunk(viewedChunkCoord, heightMapSettings, meshSettings, detailLevels, colliderLODIndex, transform, terrainMaterial, waterMaterial, viewer);
                     chunks.Add(viewedChunkCoord, chunk);
                     chunk.OnVisibleChanged += OnChunkVisibilityChanged;
                     chunk.Load();

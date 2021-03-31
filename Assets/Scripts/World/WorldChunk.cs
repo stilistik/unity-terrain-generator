@@ -9,6 +9,7 @@ public class WorldChunk
     public Vector2 coordinate;
     public Vector2 position;
     public TerrainChunk terrainChunk;
+    public WaterChunk waterChunk;
     public LODSetting[] detailLevels;
     public MeshSettings meshSettings;
     public HeightMapSettings heightMapSettings;
@@ -17,7 +18,7 @@ public class WorldChunk
     bool wasVisible = false;
 
 
-    public WorldChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material terrainMaterial, Transform viewer)
+    public WorldChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material terrainMaterial, Material waterMaterial, Transform viewer)
     {
         this.coordinate = coord;
         this.meshSettings = meshSettings;
@@ -34,7 +35,7 @@ public class WorldChunk
         gameObject.transform.position = new Vector3(position.x, 0, position.y);
 
         terrainChunk = new TerrainChunk(this, terrainMaterial, colliderLODIndex);
-
+        waterChunk = new WaterChunk(this, waterMaterial);
         SetVisible(false);
     }
 
@@ -51,6 +52,7 @@ public class WorldChunk
         if (isVisible)
         {
             terrainChunk.Update();
+            waterChunk.Update();
         }
 
         if (isVisible != wasVisible)
