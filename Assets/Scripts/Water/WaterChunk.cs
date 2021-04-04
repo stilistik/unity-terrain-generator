@@ -25,10 +25,7 @@ public class WaterChunk : Chunk
         Update();
     }
 
-    public override void Update()
-    {
-        base.Update();
-    }
+    public override void Update() { }
 
     void OnMeshReceived(object meshDataObject)
     {

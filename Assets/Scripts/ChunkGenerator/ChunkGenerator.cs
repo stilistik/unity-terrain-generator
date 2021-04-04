@@ -33,7 +33,7 @@ public class ChunkGenerator<T> where T : Chunk
     public void Start()
     {
         chunksVisibleInViewDistance = Mathf.RoundToInt(maxViewDistance / chunkSize);
-        UpdateVisibleChunks();
+        CreateOrUpdateChunks();
     }
 
     public void Update()
@@ -50,11 +50,11 @@ public class ChunkGenerator<T> where T : Chunk
         if ((viewerPositionOld - viewerPosition).sqrMagnitude > sqrChunkUpdateThreshold)
         {
             viewerPositionOld = viewerPosition;
-            UpdateVisibleChunks();
+            CreateOrUpdateChunks();
         }
     }
 
-    void UpdateVisibleChunks()
+    void CreateOrUpdateChunks()
     {
         int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / chunkSize);
         int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / chunkSize);
@@ -73,22 +73,29 @@ public class ChunkGenerator<T> where T : Chunk
 
                 if (chunks.ContainsKey(viewedChunkCoord))
                 {
-                    chunks[viewedChunkCoord].Update();
+                    UpdateChunk(chunks[viewedChunkCoord]);
                 }
                 else
                 {
                     T chunk = CreateChunk(viewedChunkCoord);
                     chunks.Add(viewedChunkCoord, chunk);
-                    chunk.OnVisibleChanged += OnChunkVisibilityChanged;
                     chunk.Load();
+                    UpdateChunk(chunk);
                 }
             }
         }
     }
 
-    void OnChunkVisibilityChanged(Chunk chunk, bool visible)
+    void UpdateChunk(T chunk)
     {
-        if (visible)
+        float distance = chunk.GetViewerDistanceFromEdge();
+        bool isVisible = distance <= maxViewDistance;
+        if (chunk.isVisible != isVisible)
+        {
+            chunk.SetVisible(isVisible);
+        }
+
+        if (isVisible)
         {
             chunksVisibleLastUpdate.Add(chunk as T);
         }

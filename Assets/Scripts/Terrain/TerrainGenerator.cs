@@ -12,13 +12,14 @@ public class TerrainGenerator : MonoBehaviour
     public LODSetting[] detailLevels;
     public int colliderLODIndex;
     public Material terrainMaterial;
+    public int viewDistance;
 
 
     ChunkGenerator<TerrainChunk> generator;
 
     void Start()
     {
-        generator = new ChunkGenerator<TerrainChunk>(CreateTerrainChunk, viewer, meshSettings.meshWorldSize, meshSettings.maxViewDistance);
+        generator = new ChunkGenerator<TerrainChunk>(CreateTerrainChunk, viewer, meshSettings.meshWorldSize, viewDistance);
         generator.Start();
     }
 

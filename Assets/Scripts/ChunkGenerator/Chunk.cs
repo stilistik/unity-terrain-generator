@@ -8,9 +8,7 @@ public abstract class Chunk
     protected Transform viewer;
     protected MeshSettings meshSettings;
     protected GameObject gameObject;
-
-
-    protected bool isVisible = false;
+    protected bool _isVisible = false;
     protected bool wasVisible = false;
 
     public event System.Action<Chunk, bool> OnVisibleChanged;
@@ -31,31 +29,12 @@ public abstract class Chunk
 
     }
 
-
     public virtual void UpdateCollider() { }
     public virtual void Load() { }
 
-    public virtual void Update()
-    {
-        UpdateChunkVisibility();
-    }
+    public abstract void Update();
 
-    protected void UpdateChunkVisibility()
-    {
-        float viewerDistance = GetViewerDistanceFromEdge();
-        isVisible = viewerDistance <= meshSettings.maxViewDistance;
-        if (isVisible != wasVisible)
-        {
-            SetVisible(isVisible);
-            if (OnVisibleChanged != null)
-            {
-                OnVisibleChanged(this, isVisible);
-            }
-        }
-
-    }
-
-    protected float GetViewerDistanceFromEdge()
+    public float GetViewerDistanceFromEdge()
     {
         return Mathf.Sqrt(bounds.SqrDistance(viewerPosition));
     }
@@ -68,9 +47,18 @@ public abstract class Chunk
         }
     }
 
+    public bool isVisible
+    {
+        get
+        {
+            return _isVisible;
+        }
+    }
+
     public void SetVisible(bool visible)
     {
+        _isVisible = visible;
         gameObject.SetActive(visible);
-        wasVisible = visible;
+        Update();
     }
 }

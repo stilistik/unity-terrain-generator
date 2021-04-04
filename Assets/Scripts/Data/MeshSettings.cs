@@ -13,7 +13,6 @@ public class MeshSettings : UpdatableData
     public int chunkSizeIndex;
 
     public float scale;
-    public float maxViewDistance;
 
     public int numVertsPerLine
     {

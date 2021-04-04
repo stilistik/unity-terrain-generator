@@ -67,8 +67,6 @@ public class TerrainChunk : Chunk
 
     public override void Update()
     {
-        base.Update();
-
         if (isVisible && heightMapReceived)
         {
             int lodIndex = GetLODIndex();
