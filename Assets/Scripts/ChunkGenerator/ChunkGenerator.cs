@@ -8,14 +8,13 @@ public class ChunkGenerator<T> where T : Chunk
     const int chunkUpdateThreshold = 25;
     const int sqrChunkUpdateThreshold = chunkUpdateThreshold * chunkUpdateThreshold;
 
-    MeshSettings meshSettings;
-
     Transform viewer;
-
     Vector2 viewerPosition;
     Vector2 viewerPositionOld;
 
     int chunksVisibleInViewDistance;
+    float maxViewDistance;
+    float chunkSize;
 
     Dictionary<Vector2, T> chunks = new Dictionary<Vector2, T>();
     List<T> chunksVisibleLastUpdate = new List<T>();
@@ -23,16 +22,17 @@ public class ChunkGenerator<T> where T : Chunk
 
     private Func<Vector2, T> CreateChunk;
 
-    public ChunkGenerator(Func<Vector2, T> CreateChunk, MeshSettings meshSettings, Transform viewer)
+    public ChunkGenerator(Func<Vector2, T> CreateChunk, Transform viewer, float chunkSize, float maxViewDistance)
     {
         this.CreateChunk = CreateChunk;
         this.viewer = viewer;
-        this.meshSettings = meshSettings;
+        this.maxViewDistance = maxViewDistance;
+        this.chunkSize = chunkSize;
     }
 
     public void Start()
     {
-        chunksVisibleInViewDistance = Mathf.RoundToInt(meshSettings.maxViewDistance / meshSettings.meshWorldSize);
+        chunksVisibleInViewDistance = Mathf.RoundToInt(maxViewDistance / chunkSize);
         UpdateVisibleChunks();
     }
 
@@ -56,8 +56,8 @@ public class ChunkGenerator<T> where T : Chunk
 
     void UpdateVisibleChunks()
     {
-        int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / meshSettings.meshWorldSize);
-        int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / meshSettings.meshWorldSize);
+        int currentChunkCoordX = Mathf.RoundToInt(viewerPosition.x / chunkSize);
+        int currentChunkCoordY = Mathf.RoundToInt(viewerPosition.y / chunkSize);
 
         for (int i = chunksVisibleLastUpdate.Count - 1; i >= 0; i--)
         {

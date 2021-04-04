@@ -12,7 +12,7 @@ public class WaterGenerator : MonoBehaviour
 
     void Start()
     {
-        generator = new ChunkGenerator<WaterChunk>(CreateWaterChunk, meshSettings, viewer);
+        generator = new ChunkGenerator<WaterChunk>(CreateWaterChunk, viewer, meshSettings.meshWorldSize, meshSettings.maxViewDistance);
         generator.Start();
     }
 

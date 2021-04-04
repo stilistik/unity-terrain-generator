@@ -18,7 +18,7 @@ public class TerrainGenerator : MonoBehaviour
 
     void Start()
     {
-        generator = new ChunkGenerator<TerrainChunk>(CreateTerrainChunk, meshSettings, viewer);
+        generator = new ChunkGenerator<TerrainChunk>(CreateTerrainChunk, viewer, meshSettings.meshWorldSize, meshSettings.maxViewDistance);
         generator.Start();
     }
 
