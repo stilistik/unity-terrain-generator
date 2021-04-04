@@ -31,6 +31,7 @@ public class WaterChunk : Chunk
     {
         meshFilter.mesh = ((MeshData)meshDataObject).CreateMesh();
         meshReceived = true;
+        NotifyLoaded();
     }
 
     void RequestMesh()

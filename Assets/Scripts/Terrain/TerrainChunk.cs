@@ -57,6 +57,7 @@ public class TerrainChunk : Chunk
     {
         this.heightMap = (HeightMap)heightMapObject;
         heightMapReceived = true;
+        NotifyLoaded();
         Update();
     }
 
@@ -101,9 +102,9 @@ public class TerrainChunk : Chunk
     }
 
 
-    float GetHeightAtPosition(int x, int y)
+    public float GetHeightAtPosition(int x, int y)
     {
-        return heightMapSettings.heightCurve.Evaluate(heightMap.values[x, y]) * heightMapSettings.heightMultiplier;
+        return heightMap.values[x, y];
     }
 
     public override void UpdateCollider()

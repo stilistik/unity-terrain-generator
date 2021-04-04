@@ -19,8 +19,10 @@ public class ChunkGenerator<T> where T : Chunk
     Dictionary<Vector2, T> chunks = new Dictionary<Vector2, T>();
     List<T> chunksVisibleLastUpdate = new List<T>();
 
-
     private Func<Vector2, T> CreateChunk;
+
+    public event System.Action<Chunk, bool> OnChunkVisibleChanged;
+    public event System.Action<Chunk> OnChunkLoaded;
 
     public ChunkGenerator(Func<Vector2, T> CreateChunk, Transform viewer, float chunkSize, float maxViewDistance)
     {
@@ -79,6 +81,7 @@ public class ChunkGenerator<T> where T : Chunk
                 {
                     T chunk = CreateChunk(viewedChunkCoord);
                     chunks.Add(viewedChunkCoord, chunk);
+                    chunk.OnLoad += HandleChunkLoaded;
                     chunk.Load();
                     UpdateChunk(chunk);
                 }
@@ -90,9 +93,16 @@ public class ChunkGenerator<T> where T : Chunk
     {
         float distance = chunk.GetViewerDistanceFromEdge();
         bool isVisible = distance <= maxViewDistance;
+
         if (chunk.isVisible != isVisible)
         {
             chunk.SetVisible(isVisible);
+
+            if (OnChunkVisibleChanged != null)
+            {
+                OnChunkVisibleChanged(chunk, isVisible);
+            }
+
         }
 
         if (isVisible)
@@ -102,6 +112,14 @@ public class ChunkGenerator<T> where T : Chunk
         else
         {
             chunksVisibleLastUpdate.Remove(chunk as T);
+        }
+    }
+
+    void HandleChunkLoaded(Chunk chunk)
+    {
+        if (OnChunkLoaded != null)
+        {
+            OnChunkLoaded(chunk);
         }
     }
 }

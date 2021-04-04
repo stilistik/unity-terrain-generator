@@ -11,7 +11,7 @@ public abstract class Chunk
     protected bool _isVisible = false;
     protected bool wasVisible = false;
 
-    public event System.Action<Chunk, bool> OnVisibleChanged;
+    public event System.Action<Chunk> OnLoad;
 
     public Chunk(Vector2 coordinate, MeshSettings meshSettings, Transform parent, Transform viewer)
     {
@@ -31,6 +31,14 @@ public abstract class Chunk
 
     public virtual void UpdateCollider() { }
     public virtual void Load() { }
+
+    protected void NotifyLoaded()
+    {
+        if (OnLoad != null)
+        {
+            OnLoad(this);
+        }
+    }
 
     public abstract void Update();
 
@@ -60,5 +68,13 @@ public abstract class Chunk
         _isVisible = visible;
         gameObject.SetActive(visible);
         Update();
+    }
+
+    public Vector2 worldPosition
+    {
+        get
+        {
+            return position;
+        }
     }
 }
