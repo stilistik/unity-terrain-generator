@@ -21,7 +21,7 @@ public class TerrainChunk : Chunk
     bool hasSetCollider = false;
     int prevLodIndex = -1;
 
-    public TerrainChunk(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer) : base(coordinate, meshSettings, viewer)
+    public TerrainChunk(Vector2 coordinate, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODSetting[] detailLevels, int colliderLODIndex, Transform parent, Material material, Transform viewer) : base(coordinate, meshSettings, parent, viewer)
     {
         this.colliderLODIndex = colliderLODIndex;
         this.heightMapSettings = heightMapSettings;
@@ -33,10 +33,7 @@ public class TerrainChunk : Chunk
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshFilter = gameObject.AddComponent<MeshFilter>();
         meshCollider = gameObject.AddComponent<MeshCollider>();
-
         meshRenderer.material = material;
-        gameObject.transform.parent = parent;
-        gameObject.transform.position = new Vector3(position.x, 0, position.y);
     }
 
     public override void Load()

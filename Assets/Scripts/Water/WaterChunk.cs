@@ -10,20 +10,19 @@ public class WaterChunk : Chunk
     bool meshRequested = false;
     bool meshReceived = false;
 
-    public WaterChunk(Vector2 coordinate, MeshSettings meshSettings, Transform parent, Material material, Transform viewer) : base(coordinate, meshSettings, viewer)
+    public WaterChunk(Vector2 coordinate, MeshSettings meshSettings, Transform parent, Material material, Transform viewer) : base(coordinate, meshSettings, parent, viewer)
     {
         gameObject.name = "WaterChunk";
         meshRenderer = gameObject.AddComponent<MeshRenderer>();
         meshFilter = gameObject.AddComponent<MeshFilter>();
-
         meshRenderer.material = material;
-        gameObject.transform.parent = parent;
-        gameObject.transform.position = new Vector3(position.x, 2, position.y);
+
     }
 
     public override void Load()
     {
         RequestMesh();
+        Update();
     }
 
     public override void UpdateImpl() { }

@@ -51,7 +51,6 @@ public class ChunkGenerator<T> where T : Chunk
         {
             viewerPositionOld = viewerPosition;
             UpdateVisibleChunks();
-
         }
     }
 

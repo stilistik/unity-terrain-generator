@@ -15,14 +15,17 @@ public abstract class Chunk
 
     public event System.Action<Chunk, bool> OnVisibleChanged;
 
-    public Chunk(Vector2 coordinate, MeshSettings meshSettings, Transform viewer)
+    public Chunk(Vector2 coordinate, MeshSettings meshSettings, Transform parent, Transform viewer)
     {
         this.meshSettings = meshSettings;
         this.viewer = viewer;
 
-        gameObject = new GameObject("Chunk");
         position = coordinate * meshSettings.meshWorldSize;
         bounds = new Bounds(position, Vector2.one * meshSettings.meshWorldSize);
+
+        gameObject = new GameObject("Chunk");
+        gameObject.transform.parent = parent;
+        gameObject.transform.position = new Vector3(position.x, 2, position.y);
 
         SetVisible(false);
 
