@@ -35,24 +35,15 @@ public abstract class Chunk
     public virtual void UpdateCollider() { }
     public virtual void Load() { }
 
-    public void Update()
+    public virtual void Update()
     {
         UpdateChunkVisibility();
-        UpdateImpl();
-        NotifyChunkVisibility();
     }
 
-    public abstract void UpdateImpl();
-
-    protected bool UpdateChunkVisibility()
+    protected void UpdateChunkVisibility()
     {
         float viewerDistance = GetViewerDistanceFromEdge();
         isVisible = viewerDistance <= meshSettings.maxViewDistance;
-        return isVisible;
-    }
-
-    protected void NotifyChunkVisibility()
-    {
         if (isVisible != wasVisible)
         {
             SetVisible(isVisible);
@@ -61,6 +52,7 @@ public abstract class Chunk
                 OnVisibleChanged(this, isVisible);
             }
         }
+
     }
 
     protected float GetViewerDistanceFromEdge()
