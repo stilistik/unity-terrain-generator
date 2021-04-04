@@ -60,11 +60,6 @@ public class TerrainChunk : Chunk
         Update();
     }
 
-    public void OnMeshDataReceived(MeshData meshData)
-    {
-        Update();
-    }
-
     public override void Update()
     {
         if (isVisible && heightMapReceived)
