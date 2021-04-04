@@ -19,11 +19,9 @@ public class TerrainPreview : MonoBehaviour
     public bool autoUpdate;
     public Renderer textureRenderer;
 
-    static WorldChunk chunk;
 
     public void DrawTexture(Texture2D texture)
     {
-        DestroyImmediate(chunk.gameObject);
         textureRenderer.gameObject.SetActive(true);
         textureRenderer.sharedMaterial.mainTexture = texture;
         textureRenderer.transform.localScale = new Vector3(texture.width, 1, texture.height) / 10f;
@@ -39,13 +37,10 @@ public class TerrainPreview : MonoBehaviour
         textureRenderer.gameObject.SetActive(false);
 
         LODSetting[] lodSettings = { new LODSetting(editorPreviewLod, int.MaxValue) };
-        chunk = new WorldChunk(Vector2.zero, heightMapSettings, meshSettings, lodSettings, 0, transform, terrainMaterial, waterMaterial, transform);
-        chunk.Load();
     }
 
     public void Clear()
     {
-        DestroyImmediate(chunk.gameObject);
         textureRenderer.gameObject.SetActive(false);
     }
 
