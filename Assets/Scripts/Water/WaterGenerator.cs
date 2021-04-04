@@ -4,11 +4,8 @@ using UnityEngine;
 
 public class WaterGenerator : MonoBehaviour
 {
-
     public MeshSettings meshSettings;
     public Transform viewer;
-    public LODSetting[] detailLevels;
-    public int colliderLODIndex;
     public Material waterMaterial;
 
     ChunkGenerator<WaterChunk> generator;
