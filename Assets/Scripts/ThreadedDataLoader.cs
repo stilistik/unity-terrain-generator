@@ -9,9 +9,13 @@ public class ThreadedDataLoader : MonoBehaviour
     static ThreadedDataLoader instance;
     Queue<ThreadInfo> mapDataQueue = new Queue<ThreadInfo>();
 
-    void Awake()
+    void Start()
     {
-        ThreadedDataLoader.instance = this;
+        instance = this;
+        if (instance == null)
+        {
+            throw new Exception("No instance of ThreadedDataLoader found!");
+        }
     }
 
     void Update()
