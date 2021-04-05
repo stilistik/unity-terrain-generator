@@ -24,7 +24,7 @@ public class EntityManager : MonoBehaviour
         {
             float xPosition = point.x + chunk.worldPosition.x - terrainGenerator.meshSettings.meshWorldSize / 2;
             float yPosition = -point.y + chunk.worldPosition.y + terrainGenerator.meshSettings.meshWorldSize / 2;
-            float height = chunk.GetHeightAtPosition((int)point.x, (int)point.y) + 2f;
+            float height = chunk.GetHeightAtPosition((int)point.x, (int)point.y) + 1.8f;
             if (height < 3 || height > 40) continue;
 
             Vector3 position = new Vector3(xPosition, height, yPosition);
@@ -32,6 +32,7 @@ public class EntityManager : MonoBehaviour
             GameObject prefab = prefabs[(int)Random.Range(0, prefabs.Count)];
             GameObject entity = Instantiate(prefab, position, Quaternion.Euler(0, Random.Range(0.0f, 360.0f), 0));
             entity.transform.parent = gameObject.transform;
+            entity.SetActive(false);
             chunkEntities.Add(entity);
         }
         entitiesByChunk.Add(chunk, chunkEntities);
