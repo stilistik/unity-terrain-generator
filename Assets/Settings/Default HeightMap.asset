@@ -17,28 +17,37 @@ MonoBehaviour:
     scale: 500
     persistence: 0.55
     lacunarity: 1.7
-    octaves: 6
+    octaves: 10
     seed: 0
     offset: {x: 0, y: 0}
     fallOffRadius: 10000
-  heightMultiplier: 300
+  heightMultiplier: 400
   heightCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: -0.05189514
       value: -0.2284851
-      inSlope: 0.7647809
-      outSlope: 0.7647809
+      inSlope: 0.7171892
+      outSlope: 0.7171892
       tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.7286227
-      value: 0.36843997
-      inSlope: 1.5460103
-      outSlope: 1.5460103
+      time: 0.303549
+      value: 0.02643559
+      inSlope: 0.20959339
+      outSlope: 0.20959339
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.09586599
+    - serializedVersion: 3
+      time: 0.6221163
+      value: 0.2583478
+      inSlope: 1.3453159
+      outSlope: 1.3453159
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334
@@ -46,8 +55,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 2.3272395
-      outSlope: 2.3272395
+      inSlope: 1.9626468
+      outSlope: 1.9626468
       tangentMode: 34
       weightedMode: 0
       inWeight: 0.33333334

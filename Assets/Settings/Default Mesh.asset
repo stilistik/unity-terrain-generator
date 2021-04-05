@@ -15,4 +15,3 @@ MonoBehaviour:
   autoUpdate: 1
   chunkSizeIndex: 0
   scale: 1
-  maxViewDistance: 200
