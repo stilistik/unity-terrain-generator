@@ -14,6 +14,7 @@ public class ThreadedDataLoader : MonoBehaviour
         instance = this;
         if (instance == null)
         {
+            // if instance cant be found, its likely that the script has not been attached to a game object
             throw new Exception("No instance of ThreadedDataLoader found!");
         }
     }
