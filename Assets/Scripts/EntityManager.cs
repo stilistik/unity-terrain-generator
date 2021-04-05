@@ -8,7 +8,7 @@ public class EntityManager : MonoBehaviour
     public int size = 300;
     public int stride = 10;
     TerrainGenerator terrainGenerator;
-    Dictionary<TerrainChunk, List<GameObject>> entitiesByChunk = new Dictionary<TerrainChunk, List<GameObject>>();
+    Dictionary<TerrainChunk, GameObject> batches = new Dictionary<TerrainChunk, GameObject>();
 
     void Start()
     {
@@ -16,10 +16,14 @@ public class EntityManager : MonoBehaviour
         terrainGenerator.OnChunkLoaded += HandleChunkLoaded;
         terrainGenerator.OnChunkVisibleChanged += HandleChunkVisibleChanged;
     }
+
     void HandleChunkLoaded(TerrainChunk chunk)
     {
         List<Vector2> points = PoissonDiscSampling.GeneratePoints(5, Vector2.one * terrainGenerator.meshSettings.meshWorldSize, 10);
-        List<GameObject> chunkEntities = new List<GameObject>();
+
+        GameObject batch = new GameObject("Entity Batch");
+        batch.SetActive(false);
+
         foreach (Vector2 point in points)
         {
             float xPosition = point.x + chunk.worldPosition.x - terrainGenerator.meshSettings.meshWorldSize / 2;
@@ -32,19 +36,17 @@ public class EntityManager : MonoBehaviour
             GameObject prefab = prefabs[(int)Random.Range(0, prefabs.Count)];
             GameObject entity = Instantiate(prefab, position, Quaternion.Euler(0, Random.Range(0.0f, 360.0f), 0));
             entity.transform.parent = gameObject.transform;
-            entity.SetActive(false);
-            chunkEntities.Add(entity);
+            entity.transform.parent = batch.transform;
         }
-        entitiesByChunk.Add(chunk, chunkEntities);
+        batches.Add(chunk, batch);
     }
 
     void HandleChunkVisibleChanged(TerrainChunk chunk, bool visible)
     {
-        List<GameObject> chunkEntities = entitiesByChunk[chunk];
-        if (chunkEntities == null) return;
-        foreach (GameObject entity in chunkEntities)
+        if (batches.ContainsKey(chunk))
         {
-            entity.SetActive(visible);
+            GameObject batch = batches[chunk];
+            batch.SetActive(visible);
         }
     }
 }
