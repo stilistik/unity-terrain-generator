@@ -51,7 +51,7 @@ public class EntityManager : MonoBehaviour
         {
             float xPosition = p.x + chunk.worldPosition.x - terrainGenerator.meshSettings.meshWorldSize / 2;
             float yPosition = -p.y + chunk.worldPosition.y + terrainGenerator.meshSettings.meshWorldSize / 2;
-            float height = chunk.GetHeightAtPosition((int)p.x, (int)p.y) + 1.8f;
+            float height = chunk.GetHeightAtPosition((int)p.x, (int)p.y) + 2f;
             if (height < 3 || height > 40) continue;
 
             Vector3 pos = new Vector3(xPosition, height, yPosition);
