@@ -1,52 +1,81 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class EntityManager : MonoBehaviour
 {
     public List<GameObject> prefabs;
-    public int size = 300;
-    public int stride = 10;
+    public int batchSize = 100;
     TerrainGenerator terrainGenerator;
-    Dictionary<TerrainChunk, GameObject> batches = new Dictionary<TerrainChunk, GameObject>();
+    Dictionary<TerrainChunk, GameObject> entities = new Dictionary<TerrainChunk, GameObject>();
+    Queue<QueueItem> queue = new Queue<QueueItem>();
 
     void Start()
     {
         terrainGenerator = FindObjectOfType<TerrainGenerator>();
         terrainGenerator.OnChunkLoaded += HandleChunkLoaded;
         terrainGenerator.OnChunkVisibleChanged += HandleChunkVisibleChanged;
+        StartCoroutine(CreateEntities());
+    }
+
+    IEnumerator CreateEntities()
+    {
+
+        while (true)
+        {
+            if (queue.Count > 0)
+            {
+                int createCount = batchSize > queue.Count ? queue.Count : batchSize;
+                for (int i = 0; i < createCount; i++)
+                {
+                    QueueItem item = queue.Dequeue();
+                    GameObject prefab = prefabs[(int)Random.Range(0, prefabs.Count)];
+                    GameObject entity = Instantiate(prefab, item.position, Quaternion.Euler(0, Random.Range(0.0f, 360.0f), 0));
+                    entity.transform.parent = item.parent;
+                }
+            }
+            yield return null;
+        }
     }
 
     void HandleChunkLoaded(TerrainChunk chunk)
     {
         List<Vector2> points = PoissonDiscSampling.GeneratePoints(5, Vector2.one * terrainGenerator.meshSettings.meshWorldSize, 10);
-
-        GameObject batch = new GameObject("Entity Batch");
+        GameObject batch = new GameObject("EntityBatch");
+        batch.transform.parent = gameObject.transform;
         batch.SetActive(false);
+        entities.Add(chunk, batch);
 
-        foreach (Vector2 point in points)
+        foreach (Vector2 p in points)
         {
-            float xPosition = point.x + chunk.worldPosition.x - terrainGenerator.meshSettings.meshWorldSize / 2;
-            float yPosition = -point.y + chunk.worldPosition.y + terrainGenerator.meshSettings.meshWorldSize / 2;
-            float height = chunk.GetHeightAtPosition((int)point.x, (int)point.y) + 1.8f;
+            float xPosition = p.x + chunk.worldPosition.x - terrainGenerator.meshSettings.meshWorldSize / 2;
+            float yPosition = -p.y + chunk.worldPosition.y + terrainGenerator.meshSettings.meshWorldSize / 2;
+            float height = chunk.GetHeightAtPosition((int)p.x, (int)p.y) + 1.8f;
             if (height < 3 || height > 40) continue;
 
-            Vector3 position = new Vector3(xPosition, height, yPosition);
-
-            GameObject prefab = prefabs[(int)Random.Range(0, prefabs.Count)];
-            GameObject entity = Instantiate(prefab, position, Quaternion.Euler(0, Random.Range(0.0f, 360.0f), 0));
-            entity.transform.parent = gameObject.transform;
-            entity.transform.parent = batch.transform;
+            Vector3 pos = new Vector3(xPosition, height, yPosition);
+            QueueItem item = new QueueItem { position = pos, parent = batch.transform };
+            queue.Enqueue(item);
         }
-        batches.Add(chunk, batch);
+
     }
 
     void HandleChunkVisibleChanged(TerrainChunk chunk, bool visible)
     {
-        if (batches.ContainsKey(chunk))
+        if (entities.ContainsKey(chunk))
         {
-            GameObject batch = batches[chunk];
-            batch.SetActive(visible);
+            GameObject chunkEntities = entities[chunk];
+            chunkEntities.SetActive(visible);
         }
     }
+
+    struct QueueItem
+    {
+        public Vector3 position;
+        public Transform parent;
+
+    }
+
+
 }
