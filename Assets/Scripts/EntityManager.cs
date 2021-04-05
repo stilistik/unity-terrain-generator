@@ -6,7 +6,7 @@ using System.Linq;
 public class EntityManager : MonoBehaviour
 {
     public List<GameObject> prefabs;
-    public int batchSize = 100;
+    public int batchSize = 50;
     TerrainGenerator terrainGenerator;
     Dictionary<TerrainChunk, GameObject> entities = new Dictionary<TerrainChunk, GameObject>();
     Queue<QueueItem> queue = new Queue<QueueItem>();
@@ -44,7 +44,7 @@ public class EntityManager : MonoBehaviour
         List<Vector2> points = PoissonDiscSampling.GeneratePoints(5, Vector2.one * terrainGenerator.meshSettings.meshWorldSize, 10);
         GameObject batch = new GameObject("EntityBatch");
         batch.transform.parent = gameObject.transform;
-        batch.SetActive(false);
+        batch.SetActive(chunk.isVisible);
         entities.Add(chunk, batch);
 
         foreach (Vector2 p in points)
