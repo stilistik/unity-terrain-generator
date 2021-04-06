@@ -77,4 +77,9 @@ public abstract class Chunk
             return position;
         }
     }
+
+    public void Destroy()
+    {
+        GameObject.DestroyImmediate(gameObject);
+    }
 }
